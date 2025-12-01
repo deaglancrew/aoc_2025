@@ -70,3 +70,42 @@ assert solve_1(EXAMPLE_IN) == 3
 
 with open('inputs/day1.txt') as infile:
     print('Part 1 solution:', solve_1(infile))
+
+class SmartDial(Dial):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._zero_count = 0
+
+    def turn_left(self, amount: int):
+        self._zero_count += amount // 100
+        amount = amount % 100
+        self._degree -= amount
+        if self._degree <= 0 and abs(self._degree) != amount:
+            self._zero_count += 1
+        if self._degree < 0:
+            self._degree += 100
+
+    def turn_right(self, amount: int):
+        self._zero_count += amount // 100
+        amount = amount % 100
+        self._degree += amount
+        if self._degree >= 100:
+            self._zero_count += 1
+            self._degree -= 100
+
+    @property
+    def zero_count(self):
+        return self._zero_count
+
+
+def solve_2(tokens):
+    dial = SmartDial()
+    for instruction in map(Instruction.parse_token, tokens):
+        dial.apply_instruction(instruction)
+    return dial.zero_count
+
+assert solve_2(EXAMPLE_IN) == 6
+assert solve_2(['R1000']) == 10
+
+with open('inputs/day1.txt') as infile:
+    print('Part 2 solution:', solve_2(infile))
